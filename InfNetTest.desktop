@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name = InfNetTest
+Name[ru] = InfNetTest
+Type = Application
+NoDisplay = false
+Exec = /usr/local/vxipnp/linux/bin/InfNetTest
+Icon = /usr/share/icons/fly-astra/64x64/apps/InfNetTest.png
+Icon[ru] = /usr/share/icons/fly-astra/64x64/apps/InfNetTest.png
+X-FLY-IconContext = Devices
+X-FLY-IconContext[ru] = Applications
+Hidden = false
+Terminal = false
+StartupNotify = true
+OnlyShowIn = FLY;

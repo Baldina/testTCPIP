@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# This INSTALL script is meant to install Informtest VISA
+# onto a Linux system (GNU/Debian).
+#
+#  Copyright 2019,
+#  Holding Informtest Corporation.
+#  All Rights reserved.
+
+sFail=1
+sOk=0
+
+inst_prefix="/usr/local/vxipnp/linux"
+link_prefix="/usr"
+bin_prefix="$inst_prefix/bin"
+vxipnp_name="vxipnp.conf"
+
+create_link() {
+	fn=$1
+	name=${fn##*/}
+	ln -sf $fn "$link_prefix/$2/$name"
+}
+
+# Verify root user
+if [ $EUID -ne 0 ]; then
+	echo "This script must be run as root."
+	echo "Installation is aborted."
+	exit $sFail
+fi
+
+mkdir -p $inst_prefix
+mkdir -p $link_prefix/local/bin
+mkdir -p $link_prefix/local/lib
+
+create_link "$inst_prefix/bin/InfNetTest" local/bin
+
+# Create QtVisaConfig shortcut on the current desktop
+cp /usr/local/vxipnp/linux/etc/desktop/InfNetTest.desktop /home/$SUDO_USER/Desktop/InfNetTest.desktop
+chown $SUDO_USER:$SUDO_USER /home/$SUDO_USER/Desktop/InfNetTest.desktop
+

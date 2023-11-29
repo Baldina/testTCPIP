@@ -1,0 +1,95 @@
+cmake_minimum_required(VERSION 2.8)
+
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 OLD)
+endif()
+
+project(InfNetTest CXX)
+
+set (PROJECT_VERSION_MAJOR 0)
+set (PROJECT_VERSION_MINOR 0)
+set (PROJECT_VERSION_PATCH 1)
+set (PROJECT_VERSION_TWEEK 0)
+
+set(CMAKE_INSTALL_PREFIX "/usr/local/")
+
+set(bin_dir bin)
+set(include_dir include)
+set(icon32_dir /usr/share/icons/fly-astra/64x64/apps/)
+set(desktop_dir etc/desktop)
+set(bin_dir bin)
+set (target_dir ${CMAKE_CURRENT_SOURCE_DIR}/../visa/)
+
+
+add_definitions(-D_M_AMD64
+#-DUSE_UNSPY
+)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
+
+set(APP_VERSION_STR  "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
+
+add_definitions(-DAPP_VERSION="${APP_VERSION_STR}")
+find_package(Qt5 COMPONENTS Core Widgets Network LinguistTools REQUIRED)
+
+file(GLOB HEADERS *.h actions/*.h)
+file(GLOB SOURCES *.cpp actions/*.cpp)
+
+file(GLOB UIS *.ui)
+qt5_wrap_ui(UICS ${UIS})
+
+if (UNIX)
+	set(RESOURCE image.qrc)
+	qt5_add_resources(RESOURCES_UNIX ${RESOURCE})
+endif()
+message (RESOURCES_UNIX${RESOURCES_UNIX})
+add_executable(${PROJECT_NAME} ${SOURCES} ${UIS} ${UICS} ${RESOURCES_UNIX})
+target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Widgets Qt5::Network)
+include_directories(${CMAKE_BIN_DIR})
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/infnettest.png
+		PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+		DESTINATION ${icon32_dir}
+)
+
+install(TARGETS ${PROJECT_NAME}
+		PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE OWNER_READ GROUP_READ WORLD_READ
+		DESTINATION ${bin_dir}
+)
+
+install(FILES InfNetTest.desktop
+		PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ
+		DESTINATION ${desktop_dir}
+)
+
+if (UNIX)
+		set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+		set(CPACK_GENERATOR "DEB")
+
+		message (CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR})
+		# set custom command after file copying
+		set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/prerm;${CMAKE_CURRENT_SOURCE_DIR}/postinst")
+		set(CPACK_PACKAGE_CONTACT "inftest@inftest.loc")
+		set(CPACK_SET_DESTDIR "on")
+		set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local/vxipnp/linux/")
+		set(CPACK_INSTALL_PREFIX "/usr/local/vxipnp/linux/")
+		set(CPACK_PACKAGE_VENDOR "Holding Informtest")
+		set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "VXI plug&play GUI software for configuration VISA")
+		# We need to set package version
+		set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+		set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+		set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+		set(CPACK_PACKAGE_VERSION_BUILD ${PROJECT_VERSION_TWEAK})
+		SET(CPACK_STRIP_FILES OFF)
+		SET(CPACK_SOURCE_STRIP_FILES OFF)
+
+		include(InstallRequiredSystemLibraries)
+		include(CPack)
+endif()
+
